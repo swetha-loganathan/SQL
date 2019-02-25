@@ -1,0 +1,173 @@
+Analysis of waste management database for Austin
+
+Database name: bigquery-public-data.austin_waste.waste_and_diversion
+
+Business problem one: What are the different types of waste generated in Austin
+Code
+SELECT distinct(load_type)  FROM `bigquery-public-data.austin_waste.waste_and_diversion`
+
+Answer
+Row	   Waste_Type	                	
+1	     RECYCLING - PAPER          
+2	     RECYCLING - COMINGLE       
+3	     RECYCLING - SINGLE STREAM  
+4	     SWEEPING                   
+5	     BRUSH                      
+6	     TIRES                      
+7	     YARD TRIMMING              
+8	     BULK                       
+9	     MIXED LITTER               
+10	   GARBAGE COLLECTIONS        
+11	   RECYCLED METAL             
+12	   RECYCLING - PLASTIC BAGS   
+13	   MULCH                      
+14	   LITTER                     
+15	   YARD TRIMMING - X-MAS TREES
+16	   DEAD ANIMAL                
+17	   ORGANICS                   
+18	   MATTRESS                   
+19	   BAGGED LITTER              
+20	   CONTAMINATED YARD TRIMMINGS
+21	   CONTAMINATED RECYCLING     
+
+Business problem two: How much waste of each type has been generated in Austin
+Code
+SELECT load_type as Waste_Type, sum (load_weight) as Total_Weight FROM `bigquery-public-data.austin_waste.waste_and_diversion` 
+Group by load_type 
+
+Answer
+Row	   Waste_Type	                Total_Weight	
+1	     RECYCLING - PAPER          141661620
+2	     RECYCLING - COMINGLE       101514879
+3	     RECYCLING - SINGLE STREAM  1165522387
+4	     SWEEPING                   172259177
+5	     BRUSH                      207447237
+6	     TIRES                      5727090
+7	     YARD TRIMMING              727416962
+8	     BULK                       257781071
+9	     MIXED LITTER               5855585
+10	   GARBAGE COLLECTIONS        3766729284
+11	   RECYCLED METAL             2009628
+12	   RECYCLING - PLASTIC BAGS   7767
+13	   MULCH                      10710573
+14	   LITTER                     4935250
+15	   YARD TRIMMING - X-MAS TREES188000
+16	   DEAD ANIMAL                2971990
+17	   ORGANICS                   15307660
+18	   MATTRESS                   27480
+19	   BAGGED LITTER              546421
+20	   CONTAMINATED YARD TRIMMINGS3740
+21	   CONTAMINATED RECYCLING     13900
+
+Business problem Three: What are the top 3 wastes generated?
+Code
+SELECT load_type as Waste_Type, sum (load_weight) as Total_Weight FROM `bigquery-public-data.austin_waste.waste_and_diversion` 
+Group by load_type 
+Order by (Total_Weight) desc
+Limit 3
+
+Answer
+Row	Waste_Type	                Total_Weight	
+1	  GARBAGE COLLECTIONS         3766729284
+2	  RECYCLING - SINGLE STREAM   1165522387
+3	  YARD TRIMMING               727416962
+
+Business problem Four: What are the least 3 wastes generated?
+Code
+SELECT load_type as Waste_Type, sum (load_weight) as Total_Weight FROM `bigquery-public-data.austin_waste.waste_and_diversion` 
+Group by load_type 
+Order by (Total_Weight) 
+Limit 3
+
+Answer
+Row	Waste_Type	                Total_Weight	
+1	  CONTAMINATED YARD TRIMMINGS 3740        
+2	  RECYCLING - PLASTIC BAGS    7767
+3	  CONTAMINATED RECYCLING      13900
+
+Buiness problem 4: Which are the 3 days with the highest average weight of waste generated?
+Code
+Select report_date as Date, avg(load_weight) as Average_weight FROM `bigquery-public-data.austin_waste.waste_and_diversion`
+Group by report_date
+Order by (Average_weight) desc
+limit 3
+
+Answer
+Row	Date	      Average_weight	
+1	  2015-11-10  3189081
+2	  2017-03-29  2912153
+3	  2017-03-22  2905900
+
+Business problem 5: For how many distinct days is the data available?
+Code
+Select
+count (distinct report_date)
+From `bigquery-public-data.austin_waste.waste_and_diversion`
+
+Answer 
+4284
+
+Business problem 6: how many kinds of routes are there in garbage collection?
+code
+Select 
+count (distinct route_type)
+From `bigquery-public-data.austin_waste.waste_and_diversion`
+
+Answer
+40
+
+Business problem 7: Which are the 3 routes with the least waste generated?
+Code
+Select route_type as Route, sum(load_weight) as Average_loadweight
+From `bigquery-public-data.austin_waste.waste_and_diversion`
+group by route_type
+order by Average_loadweight
+limit 3
+
+Answer
+Row	Route                 	  Average_loadweight	
+1	  FLUSHER                   null
+2	  STREET CLEANING-SCHOOLS   null
+3	  STREET CLEANING-DOWNTOWN  1000
+
+Business problem 8: How many load off sites is mulch being offloaded?
+Code
+Select 
+count (distinct dropoff_site)
+From `bigquery-public-data.austin_waste.waste_and_diversion`
+where load_type="MULCH"
+
+Answer
+5
+
+Business problem 9: What type of route is the recycling paper assigned to?
+Code
+Select 
+ distinct route_type
+ From `bigquery-public-data.austin_waste.waste_and_diversion`
+where load_type="RECYCLING - PAPER"
+
+Answer
+Row	route_type	
+1	  RECYCLING - SINGLE STREAM
+2	  RECYCLING
+3	  INHOUSE - RECYCLING
+4	  GARBAGE COLLECTION
+
+Business problem 10: What kinds of loads are in the recycling- single stream route?
+Code
+Select DISTINCT load_type as Distinct_Type, avg(load_weight) as Weight
+From `bigquery-public-data.austin_waste.waste_and_diversion`
+where route_type="RECYCLING - SINGLE STREAM"
+group by load_type
+
+Answer
+Row	  Distinct_Type	               Weight	
+1	    RECYCLING - SINGLE STREAM    10178.764556196295
+2	    SWEEPING                     10990.529411764706
+3	    RECYCLED METAL               10878.965517241377
+4	    RECYCLING - PAPER            1747.9469696969727
+5	    RECYCLING - COMINGLE         1383.5923233498079
+6	    GARBAGE COLLECTIONS          4844.0
+7	    CONTAMINATED RECYCLING       13900.0
+
